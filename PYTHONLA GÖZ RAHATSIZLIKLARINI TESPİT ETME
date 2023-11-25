@@ -1,1 +1,200 @@
+PYTHONLA GÖZ RAHATSIZLIKLARINI TESPİT ETME
 
+import cv2
+# Yüz tanıma için hazır bir model yükledim.
+face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+if face_cascade.empty():
+    raise IOError("Yüz tanıma modeli yüklenemedi. Lütfen dosyanın doğru 
+olduğunu kontrol edin.")
+# Daha spesifik bir göz tanıma modeli yükledim.
+eye_cascade = cv2.CascadeClassifier('haarcascade_eye_tree_eyeglasses.xml')
+if eye_cascade.empty():
+    raise IOError("Göz tanıma modeli yüklenemedi. Lütfen dosyanın doğru 
+olduğunu kontrol edin.")
+# Göz rahatsızlıklarını tespit etmek için bir fonksiyon tanımladım.
+def detect_eye_diseases(image_paths):
+    for path in image_paths:
+        # Bir resmi oku
+        image = cv2.imread(path)
+        if image is None:
+            raise IOError(f"{path}: Resim yüklenemedi. Dosyanın
+doğru olduğunu kontrol edin.")
+        # Görüntüyü gri tonlamaya dönüştür
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        # Görüntüdeki yüzleri tanımla
+        faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+        # Her bir yüz için
+        for (x, y, w, h) in faces:
+            # Yüzü dikdörtgen içine al
+            cv2.rectangle(image, (x, y), (x+w, y+h), (255, 0, 0), 2)
+            # Yüzün gri tonlamalı bölgesini al
+            roi_gray = gray[y:y+h, x:x+w]
+            # Yüzün renkli bölgesini al
+            roi_color = image[y:y+h, x:x+w]
+            # Yüz bölgesindeki gözleri tanımla
+            eyes = eye_cascade.detectMultiScale(roi_gray)
+            # Her bir göz için
+            for (ex, ey, ew, eh) in eyes:
+                # Gözü dikdörtgen içine al
+                cv2.rectangle(roi_color, (ex, ey), (ex+ew, ey+eh), (0, 255, 0), 2)
+                # Gözün renkli bölgesini işlemlere devam etmek için al
+                eye_color = roi_color[ey:ey+eh, ex:ex+ew]
+                # Göz rengini değerlendirmek ve bilgi vermek için buraya ek işlemler ekle
+                eye_color_center_avg = cv2.mean(eye_color)
+                h, _, _ = eye_color_center_avg[0], eye_color_center_avg[1], eye_color_center_avg[2]
+                if h < 10 or h > 170:
+                    print(f"{path}: Gözde kırmızılık var. Konjonktivit veya alerji olabilir.")
+                elif 10 < h < 30:
+                    print(f"{path}: Göz rengi sararmış. Katarakt olabilir.")
+                elif 30 < h < 90:
+                    print(f"{path}: Göz rengi yeşillenmiş. Glokom olabilir.")
+                else:
+                    print(f"{path}: Göz renginde anormal bir değişiklik yok.")
+                # Göz en-boy oranını değerlendir
+                if eh != 0:  # Sıfıra bölme hatası kontrolü
+                    eye_aspect_ratio = ew / eh
+                    if eye_aspect_ratio < 0.5:
+                        print(f"{path}: Göz çok dar. Tiroid hastalığı olabilir.")
+                    elif eye_aspect_ratio > 1.5:
+                        print(f"{path}: Göz çok geniş. Diyabet olabilir.")
+                    else:
+                        print(f"{path}: Göz şekli veya büyüklüğünde anormal 
+bir değişiklik yok.")
+        # İşlenmiş resimleri gösterme kısmını devre dışı bıraktım, dilerseniz 
+aktif edebilirsiniz
+        # cv2.imshow('image', image)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+# Birden çok resmi işleme ekleyerek fonksiyonu çağır
+image_paths = ['eye1.jpg', 'eye2.jpg', 'eye3.jpg']
+detect_eye_diseases(image_paths) 
+#Yazan Rıdvan Kaya
+Bu kod, yüz ve göz tanıma için hazır modeller kullanarak, verilen 
+resimlerdeki göz rahatsızlıklarını tespit etmeye çalışan bir 
+Python programıdır. Kodun açıklaması şöyledir:
+- İlk olarak, cv2 kütüphanesini içe aktarır. Bu kütüphane, 
+görüntü işleme ve bilgisayarlı görü işlevleri sağlayan bir kütüphanedir.
+- Sonra, yüz tanıma için hazır bir model yükler. Bu model, 
+haarcascade_frontalface_default.xml dosyasından alınır. Bu dosya, 
+yüzleri tanımlamak için önceden eğitilmiş bir sınıflandırıcıdır. Eğer 
+dosya yüklenemezse, bir hata mesajı verir.
+- Daha sonra, daha spesifik bir göz tanıma modeli yükler. Bu model, 
+haarcascade_eye_tree_eyeglasses.xml dosyasından alınır. Bu dosya, 
+gözlük takan veya takmayan gözleri tanımlamak için önceden eğitilmiş
+bir sınıflandırıcıdır. Eğer dosya yüklenemezse, bir hata mesajı verir.
+- Daha sonra, göz rahatsızlıklarını tespit etmek için bir fonksiyon tanımlar. 
+Bu fonksiyon, bir resim yolu listesi alır ve her bir resim için aşağıdaki işlemleri yapar:
+    - Resmi okur. Eğer resim yüklenemezse, bir hata mesajı verir.
+    - Resmi gri tonlamaya dönüştürür. Bu, görüntü işlemede yaygın bir adımdır, 
+çünkü renkli resimler daha fazla bilgi içerir ve daha fazla hesaplama gerektirir.
+    - Resimdeki yüzleri tanımlar. Bu, yüz tanıma modelini kullanarak yapılır. Model, 
+resimdeki yüzlerin konumunu ve boyutunu döndürür.
+    - Her bir yüz için, yüzü dikdörtgen içine alır ve yüzün gri tonlamalı ve renkli 
+bölgesini alır. Bu, yüz bölgesindeki gözleri tanımlamak için kullanılacaktır.
+    - Yüz bölgesindeki gözleri tanımlar. Bu, göz tanıma modelini kullanarak yapılır.
+Model, yüz bölgesindeki gözlerin konumunu ve boyutunu döndürür.
+    - Her bir göz için, gözü dikdörtgen içine alır ve gözün renkli bölgesini alır.
+Bu, göz rengini ve şeklini değerlendirmek için kullanılacaktır.
+    - Göz rengini değerlendirir ve bilgi verir. Bu, göz renginin ortalamasını 
+alarak ve renk uzayında hangi aralığa girdiğine bakarak yapılır. Örneğin, 
+kırmızı renk, konjonktivit veya alerji; sarı renk, katarakt; yeşil renk, 
+glokom gibi göz hastalıklarının belirtisi olabilir. Eğer göz renginde anormal 
+bir değişiklik yoksa, bunu da belirtir.
+    - Göz en-boy oranını değerlendirir. Bu, gözün genişliğinin yüksekliğine 
+oranını alarak yapılır. Örneğin, göz çok dar ise, tiroid hastalığı; 
+göz çok geniş ise, diyabet gibi göz şekli veya büyüklüğünü etkileyen 
+hastalıkların belirtisi olabilir. Eğer göz şekli veya büyüklüğünde anormal
+bir değişiklik yoksa, bunu da belirtir.
+- Son olarak, birden çok resmi işleme ekleyerek fonksiyonu çağırır. Bu, 
+image_paths listesindeki resim yollarını fonksiyona vererek yapılır. 
+Fonksiyon, her bir resim için göz rahatsızlıklarını tespit eder ve ekrana 
+yazdırır. Ayrıca, işlenmiş resimleri göstermek için bir kısım vardır, ancak 
+bu kısım devre dışı bırakılmıştır. Bu kısmı aktif etmek için, yorum satırı 
+işaretlerini (#) kaldırmak gerekir.
+
+Kodun haarcascade_frontalface_default.xml Dosyasına Ait Python Kodu: 
+Haarcascade_frontalface_default.xml dosyası, yüz tanıma için önceden
+eğitilmiş bir sınıflandırıcıdır. Bu dosyayı kullanarak, bir resimdeki
+yüzleri tespit edebilir ve dikdörtgen içine alabilirsiniz. Bunun için 
+Python’da OpenCV kütüphanesini kullanmanız gerekir. Aşağıda, bu dosyayı
+kullanan basit bir Python kodu örneği verilmiştir:
+
+import cv2
+# Yüz tanıma modelini yükle
+face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+# Resmi oku
+img = cv2.imread('yuzler.jpg')
+# Gri tonlamaya dönüştür
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+# Yüzleri tespit et
+faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+# Her bir yüz için
+for i, (x, y, w, h) in enumerate(faces):
+    # Yüzü dikdörtgen içine al ve numaralandır
+    cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
+    cv2.putText(img, f'Yüz {i+1}', (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2)
+# Kaç tane yüz bulunduğunu yazdır
+print(f'Tespit edilen toplam yüz sayısı: {len(faces)}')
+# İşlenmiş resmi göster
+cv2.imshow('img', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+#Yazan Rıdvan Kaya
+Bu ikinci kod, yüz tanıma için bir programdır. Kodun yaptığı işlemler şunlardır:
+cv2 adlı bir kütüphaneyi içe aktarır. Bu kütüphane, bilgisayarlı görü ile ilgili 
+fonksiyonlar sağlar.
+face_cascade adlı bir değişkene, haarcascade_frontalface_default.xml adlı bir 
+dosyadan yüz tanıma modelini yükler. Bu model, ön yüzleri tespit etmek için kullanılır.
+img adlı bir değişkene, yuzler.jpg adlı bir resmi okur. Bu resimde birden fazla yüz olabilir.
+gray adlı bir değişkene, img resmini gri tonlamaya  dönüştürür. Bu işlem, yüz tanıma 
+için resmi hazırlar.
+faces adlı bir değişkene, face_cascade modelini kullanarak gray resmindeki yüzleri 
+tespit eder. Bu işlem, her bir yüz için bir koordinat (x, y) ve bir boyut (w, h) döndürür.
+faces değişkenindeki her bir yüz için bir döngü başlatır. Bu döngüde, şu işlemler yapılır:
+img resminde, yüzün koordinat ve boyutuna göre bir dikdörtgen çizer ve mavi renk ile işaretler.
+img resminde, yüzün üstüne bir numara yazar ve mavi renk ile gösterir.
+print fonksiyonu ile, tespit edilen toplam yüz sayısını yazdırır. 
+cv2.imshow fonksiyonu ile, işlenmiş resmi gösterir.
+cv2.waitKey fonksiyonu ile, bir tuşa basılana kadar resmi ekranda tutar.
+cv2.destroyAllWindows fonksiyonu ile, resmi kapatarak programı sonlandırır.
+
+haarcascade_eye_tree_eyeglasses.xml Dosyasına Air Kod
+Haarcascade_eye_tree_eyeglasses.xml dosyası, gözlük takan veya takmayan gözleri 
+tanımlamak için önceden eğitilmiş bir sınıflandırıcıdır. Bu dosyayı kullanarak,
+bir resimdeki gözleri tespit edebilir ve dikdörtgen içine alabilirsiniz. 
+Bunun için Python'da OpenCV kütüphanesini kullanmanız gerekir. 
+Aşağıda, bu dosyayı kullanan basit bir Python kodu örneği verilmiştir:
+
+# Öncelikle OpenCV kütüphanesini içe aktardım.
+import cv2
+# Sonra, yüz tanıma modelini yükledim.
+face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+# Daha sonra, göz tanıma modelini yükledim. 
+eye_cascade = cv2.CascadeClassifier('haarcascade_eye_tree_eyeglasses.xml')
+# Daha sonra, bir resim dosyasını okudum.
+img = cv2.imread('yuzler.jpg')
+# Resmi gri tonlamaya dönüştürdüm.
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+# Resimdeki yüzleri tespit ettim. 
+faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+# Her bir yüz için
+for (x, y, w, h) in faces:
+    # Yüzü dikdörtgen içine aldım.
+    cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
+    # Yüzün gri tonlamalı bölgesini aldım. 
+    roi_gray = gray[y:y+h, x:x+w]
+    # Yüzün renkli bölgesini aldım.
+    roi_color = img[y:y+h, x:x+w]
+    # Yüz bölgesindeki gözleri tespit ettim.
+    eyes = eye_cascade.detectMultiScale(roi_gray)
+    # Her bir göz için
+    for (ex, ey, ew, eh) in eyes:
+        # Gözü dikdörtgen içine aldım.
+        cv2.rectangle(roi_color, (ex, ey), (ex+ew, ey+eh), (0, 255, 0), 2)
+# İşlenmiş resmi gösterdim.
+cv2.imshow('img', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+#Yazan Rıdvan Kaya
+Bu üçüncü kod, yuzler.jpg dosyasındaki yüzleri mavi renkli, gözleri
+ise yeşil renkli dikdörtgenlerle çerçeve içine alır. 
