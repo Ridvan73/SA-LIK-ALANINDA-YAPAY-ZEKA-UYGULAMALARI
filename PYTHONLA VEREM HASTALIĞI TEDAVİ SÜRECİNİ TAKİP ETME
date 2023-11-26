@@ -1,0 +1,257 @@
+VEREM HASTALIĞI TEDAVİ SÜRECİNİ TAKİP ETME VE YÖNETME
+from datetime import datetime, timedelta
+class VeremHastasi:
+    def __init__(self, isim, yas, cinsiyet, belirtiler, test_sonuclari, ilaclar):
+        if yas < 0:
+            raise ValueError("Yaş negatif olamaz.")
+        self.isim = isim
+        self.yas = yas
+        self.cinsiyet = cinsiyet
+        self.belirtiler = belirtiler
+        self.test_sonuclari = test_sonuclari
+        self.ilaclar = ilaclar
+        self.tedavi_durumu = False
+        self.tedavi_baslama_tarihi = None
+        self.tedavi_bitis_tarihi = None
+        self.tedavi_suresi = None
+        self.tedavi_maliyeti = None
+        self.tedavi_uyumu = None
+        self.komplikasyonlar = None
+        self.yasam_kalitesi = None
+    def bilgileri_goster(self):
+        print(f"Hastanın ismi: {self.isim}")
+        print(f"Hastanın yaşı: {self.yas}")
+        print(f"Hastanın cinsiyeti: {self.cinsiyet}")
+        print(f"Hastanın belirtileri: {', '.join(self.belirtiler)}")
+        print(f"Hastanın test sonuçları: {', '.join(self.test_sonuclari)}")
+        print(f"Hastanın aldığı ilaçlar: {', '.join(self.ilaclar)}")
+        print(f"Hastanın tedavi durumu: {'Tamamlandı' if self.tedavi_durumu else 'Devam ediyor'}")
+        # Yeni eklenen bilgileri de göster
+        print(f"Tedavi Başlama Tarihi: {self.tedavi_baslama_tarihi}")
+        print(f"Tedavi Bitiş Tarihi: {self.tedavi_bitis_tarihi}")
+        print(f"Tedavi Süresi: {self.tedavi_suresi}")
+        print(f"Tedavi Maliyeti: {self.tedavi_maliyeti}")
+        print(f"Tedavi Uyumu: {self.tedavi_uyumu}")
+        print(f"Komplikasyonlar: {self.komplikasyonlar}")
+        print(f"Yaşam Kalitesi: {self.yasam_kalitesi}")
+    def tedavi_guncelle(self, yeni_belirtiler=None, yeni_test_sonuclari=None, yeni_ilaclar=None, yeni_tedavi_uyumu=None,
+                        tedavi_baslama_tarihi=None, tedavi_bitis_tarihi=None, tedavi_maliyeti=None,
+                        komplikasyonlar=None, yasam_kalitesi=None):
+        if yeni_belirtiler is not None:
+            self.belirtiler = yeni_belirtiler
+        if yeni_test_sonuclari is not None:
+            self.test_sonuclari = yeni_test_sonuclari
+        if yeni_ilaclar is not None:
+            self.ilaclar = yeni_ilaclar
+        if yeni_tedavi_uyumu is not None:
+            self.tedavi_uyumu = yeni_tedavi_uyumu
+        # (Diğer güncellemeler burada...)  
+        self._kontrol_tedavi_durumu()
+        # Tedavi tarihleri ve diğer bilgileri güncelle
+        if tedavi_baslama_tarihi:
+            self.tedavi_baslama_tarihi = tedavi_baslama_tarihi
+        if tedavi_bitis_tarihi:
+            self.tedavi_bitis_tarihi = tedavi_bitis_tarihi
+        if tedavi_maliyeti:
+            self.tedavi_maliyeti = tedavi_maliyeti
+        if komplikasyonlar:
+            self.komplikasyonlar = komplikasyonlar
+        if yasam_kalitesi:
+            self.yasam_kalitesi = yasam_kalitesi
+    def _kontrol_tedavi_durumu(self):
+        if not self.belirtiler and all(sonuc == "Negatif" for sonuc in self.test_sonuclari):
+            self.tedavi_durumu = True
+            print("Tedavi tamamlandı.")
+# Örnek olarak, verem hastalığı olan bir hastayı oluşturalım
+hasta = VeremHastasi(
+    isim="Ali",
+    yas=35,
+    cinsiyet="Erkek",
+    belirtiler=["Öksürük", "Balgam", "Kan tükürme", "Ateş", "Gece terlemeleri", "Kilo kaybı", "İştahsızlık", "Yorgunluk"],
+    test_sonuclari=["Tüberkülin cilt testi: Pozitif", "Kan testi: Pozitif", "Balgam kültürü: Pozitif", "Akciğer röntgeni: Anormal"],
+    ilaclar=["İzoniazid", "Rifampisin", "Pirazinamid", "Etambutol"]
+)
+# Hasta bilgilerini gösterelim
+hasta.bilgileri_goster()
+# Hasta tedavi sürecini güncelleyelim
+try:
+    hasta.tedavi_guncelle(
+        yeni_belirtiler=["Öksürük", "Balgam"],
+        yeni_test_sonuclari=["Tüberkülin cilt testi: Pozitif", "Kan testi: Negatif", "Balgam kültürü: Negatif", "Akciğer röntgeni: Anormal"],
+        yeni_ilaclar=["İzoniazid", "Rifampisin"]
+    )
+    # Hasta güncellenmiş bilgilerini gösterelim
+    hasta.bilgileri_goster()
+except ValueError as e:
+    print(f"Hata: {e}")
+# Hasta tedavi sürecini tekrar güncelleyelim
+try:
+    hasta.tedavi_guncelle(
+        yeni_belirtiler=[],
+        yeni_test_sonuclari=["Tüberkülin cilt testi: Negatif", "Kan testi: Negatif", "Balgam kültürü: Negatif", "Akciğer röntgeni: Normal"],
+        yeni_ilaclar=[]
+    )
+    # Hasta güncellenmiş bilgilerini gösterelim
+    hasta.bilgileri_goster()
+except ValueError as e:
+    print(f"Hata: {e}")
+#Yazan Rıdvan Kaya 
+
+Bu kod verem hastalığına yakalanmış hastaların tedavi süreçlerinin takip edilmesini sağlayan basit bir VeremHastası sınıfı tanımlaması ve örnek kullanımıdır.
+Kod şunları yapmaktadır: 
+
+1. VeremHastası sınıfı oluşturuluyor. Hasta hakkında temel bilgiler ve tedavi süreciyle ilgili bilgiler tutulabilecek özellikler tanımlanıyor.
+2. Örnek bir hasta nesnesi oluşturuluyor ve bilgileri gösteriliyor. 
+3. Hastanın tedavi süreci güncellenmeye çalışılıyor, belirti ve test sonuçları değiştiriliyor.
+4. Güncellenmiş hasta bilgileri tekrar gösteriliyor.
+5. İkinci bir güncelleme daha yapılıyor, belirtiler ve ilaçlar kaldırılıyor. 
+
+Burada amaç:
+- Hastalık ve tedavi süreci hakkında tutulan verileri organize etmek
+- Süreci kolayca güncelleyebilmek 
+- Tedavi sonuçlarını kontrol edebilmek
+Kod hasta takibinin temel işlemlerini gerçekleştiriyor. 
+
+Bu kod pyhton diliyle yazılmış olduğu için, öncelikle python interpretörü veya IDE programı (Integrated Development Environment - Entegre Geliştirme Ortamı) kurmak gerekiyor.
+
+Populer python interpreter ve IDE'ler şunlardır:
+
+- Python (Komut satırından çalıştırmak için)
+- Visual Studio Code (Hafif IDE)  
+- PyCharm (Tam yetenekli IDE)
+- Jupyter Notebook (İnteraktif çalıştırma için)
+
+Kodu çalıştırmak için adımlar şu şekilde olur:
+
+1) Bir python IDE'si kurun veya komut satırını açın.
+2) Kodu verem_hastasi.py gibi bir dosya ismiyle kaydedin.
+3)  IDE'de dosyayı açın veya komut satırından dosya konumuna gidin.
+4) python verem_hastasi.py komutuyla çalıştırın. 
+5) Kod çalışacak ve örnek çıktıları gösterecektir.
+6) Kodun çeşitli bölümlerini ayrı modüller haline getirip çağırabilirsiniz. Bunun için veri tabanı kullandım. 
+7) Veri giriş/çıkışı için veritabanı veya dosya kullanabilirsiniz.
+8) Hata ayıklayıcı (debugger) kullanarak adım adım çalışmayı inceleyebilirsiniz.
+Böylece kodu çalıştırmış ve sistem üzerinde test etme imkanı bulmuş olursunuz. 
+
+KOD İÇİN VERİ TABANI
+
+import sqlite3
+from datetime import datetime, timedelta
+class DilSecimi:
+    def __init__(self, dil="tr"):
+        self.dil = dil
+        self.ceviriler = {
+            "tamamlandi": {"tr": "Tedavi tamamlandı.", "en": "Treatment completed."},
+            "hata": {"tr": "Hata:", "en": "Error:"}
+            # Diğer çeviriler buraya eklenebilir
+        }
+    def dil_metni_al(self, anahtar):
+        if self.dil in self.ceviriler[anahtar]:
+            return self.ceviriler[anahtar][self.dil]
+        else:
+            return f"Dil '{self.dil}' desteklenmiyor."
+class VeremHastasi:
+    def __init__(self, isim, yas, cinsiyet, belirtiler, test_sonuclari, ilaclar):
+        if yas < 0:
+            raise ValueError("Yaş negatif olamaz.")
+        self.isim = isim
+        self.yas = yas
+        self.cinsiyet = cinsiyet
+        self.belirtiler = belirtiler
+        self.test_sonuclari = test_sonuclari
+        self.ilaclar = ilaclar
+        self.tedavi_durumu = False
+        self.tedavi_baslama_tarihi = None
+        self.tedavi_bitis_tarihi = None
+        self.tedavi_suresi = None
+        self.tedavi_maliyeti = None
+        self.tedavi_uyumu = None
+        self.komplikasyonlar = None
+        self.yasam_kalitesi = None
+    def bilgileri_goster(self):
+        print(f"Hastanın ismi: {self.isim}")
+        print(f"Hastanın yaşı: {self.yas}")
+        print(f"Hastanın cinsiyeti: {self.cinsiyet}")
+        print(f"Hastanın belirtileri: {', '.join(self.belirtiler)}")
+        print(f"Hastanın test sonuçları: {', '.join(self.test_sonuclari)}")
+        print(f"Hastanın aldığı ilaçlar: {', '.join(self.ilaclar)}")
+        print(f"Hastanın tedavi durumu: {'Tamamlandı' if self.tedavi_durumu else 'Devam ediyor'}")
+        # Yeni eklenen bilgileri de göster
+        print(f"Tedavi Başlama Tarihi: {self.tedavi_baslama_tarihi}")
+        print(f"Tedavi Bitiş Tarihi: {self.tedavi_bitis_tarihi}")
+        print(f"Tedavi Süresi: {self.tedavi_suresi}")
+        print(f"Tedavi Maliyeti: {self.tedavi_maliyeti}")
+        print(f"Tedavi Uyumu: {self.tedavi_uyumu}")
+        print(f"Komplikasyonlar: {self.komplikasyonlar}")
+        print(f"Yaşam Kalitesi: {self.yasam_kalitesi}")
+    def tedavi_guncelle(self, yeni_belirtiler=None, yeni_test_sonuclari=None, yeni_ilaclar=None, yeni_tedavi_uyumu=None,
+                        tedavi_baslama_tarihi=None, tedavi_bitis_tarihi=None, tedavi_maliyeti=None,
+                        komplikasyonlar=None, yasam_kalitesi=None):
+        if yeni_belirtiler is not None:
+            self.belirtiler = yeni_belirtiler
+        if yeni_test_sonuclari is not None:
+            self.test_sonuclari = yeni_test_sonuclari
+        if yeni_ilaclar is not None:
+            self.ilaclar = yeni_ilaclar
+        if yeni_tedavi_uyumu is not None:
+            self.tedavi_uyumu = yeni_tedavi_uyumu
+        # (Diğer güncellemeler burada...)
+        self._kontrol_tedavi_durumu()
+        # Tedavi tarihleri ve diğer bilgileri güncelle
+        if tedavi_baslama_tarihi:
+            self.tedavi_baslama_tarihi = tedavi_baslama_tarihi
+        if tedavi_bitis_tarihi:
+            self.tedavi_bitis_tarihi = tedavi_bitis_tarihi
+        if tedavi_maliyeti:
+            self.tedavi_maliyeti = tedavi_maliyeti
+        if komplikasyonlar:
+            self.komplikasyonlar = komplikasyonlar
+        if yasam_kalitesi:
+            self.yasam_kalitesi = yasam_kalitesi
+    def _kontrol_tedavi_durumu(self):
+        if not self.belirtiler and all(sonuc == "Negatif" for sonuc in self.test_sonuclari):
+            self.tedavi_durumu = True
+            print("Tedavi tamamlandı.")
+# Dil seçimi ve hastanın kaydedilmesi
+dil_secimi = DilSecimi()
+hasta = VeremHastasi(
+    isim="Ali",
+    yas=35,
+    cinsiyet="Erkek",
+    belirtiler=["Öksürük", "Balgam", "Kan tükürme", "Ateş", "Gece terlemeleri", "Kilo kaybı", "İştahsızlık", "Yorgunluk"],
+    test_sonuclari=["Tüberkülin cilt testi: Pozitif", "Kan testi: Pozitif", "Balgam kültürü: Pozitif", "Akciğer röntgeni: Anormal"],
+    ilaclar=["İzoniazid", "Rifampisin", "Pirazinamid", "Etambutol"]
+)
+# Hasta bilgilerini gösterelim
+hasta.bilgileri_goster()
+# Hasta tedavi sürecini güncelleyelim
+try:
+    hasta.tedavi_guncelle(
+        yeni_belirtiler=["Öksürük", "Balgam"],
+        yeni_test_sonuclari=["Tüberkülin cilt testi: Pozitif", "Kan testi: Negatif", "Balgam kültürü: Negatif", "Akciğer röntgeni: Anormal"],
+        yeni_ilaclar=["İzoniazid", "Rifampisin"]
+    )
+# Hasta güncellenmiş bilgilerini gösterelim
+    hasta.bilgileri_goster()
+except ValueError as e:
+    print(f"Hata: {e}")
+# Hasta tedavi sürecini tekrar güncelleyelim
+try:
+    hasta.tedavi_guncelle(
+        yeni_belirtiler=[],
+        yeni_test_sonuclari=["Tüberkülin cilt testi: Negatif", "Kan testi: Negatif", "Balgam kültürü: Negatif", "Akciğer röntgeni: Normal"],
+        yeni_ilaclar=[]
+    )
+    # Hasta güncellenmiş bilgilerini gösterelim
+    hasta.bilgileri_goster()
+except ValueError as e:
+    print(f"Hata: {e}")
+#Yazan Rıdvan Kaya
+Bu veri tabanı kodudur. Kodun yaptıkları şunlardır: 
+
+1. DilSecimi sınıfında çeviri metinleri sözlük şeklinde tutulmuştur.  Böylece yeni diller ve çeviri metinleri kolayca eklenebilir.
+2. VeremHastası sınıfına tedavi sürecine ilişkin özellikler eklenmiştir: Tedavi başlama-bitiş tarihi, süresi, maliyeti vs. 
+3. Hastanın bilgileri gösterilmiş ve güncellenmiştir. 
+4. Hastanın bilgileri ve tedavi süreci kontrol edilerek tedavi tamamlandığı yazdırılıyor. 
+5. Hastanın bilgileri ve tedavi süreci güncellenebiliyor.
+6. Hata yönetimi sağlanmıştır. 
