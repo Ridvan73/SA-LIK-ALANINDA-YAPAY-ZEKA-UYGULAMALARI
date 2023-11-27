@@ -1,0 +1,62 @@
+Pythonla Kızamık Hastalığının Tedavisi İçin Bir Matematiksel Modeli Çözmek ve Sonuçları Grafikle Göstermek
+
+.# Gerekli kütüphaneleri içe aktar
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import odeint
+# Parametreleri tanımla
+beta = 0.5  # Bulaşma katsayısı
+gamma = 0.2  # İyileşme oranı
+mu = 0.01  # Doğal ölüm oranı
+nu = 0.01  # Doğal doğum oranı
+alpha = 0.1  # Kızamık kaynaklı ölüm oranı
+delta = 0.1  # Aşılanma oranı
+# Başlangıç koşullarını tanımla
+S0 = 0.9 * 1000  # Duyarlı nüfus sayısı
+I0 = 0.1 * 1000  # Enfekte nüfus sayısı
+R0 = 0 * 1000  # Bağışık nüfus sayısı
+y0 = [S0, I0, R0]  # Başlangıç değerleri vektörü
+# Zaman aralığını tanımla
+t = np.linspace(0, 200, 1000)  # 0-200 gün arası 1000 nokta
+# Sistem denklemlerini tanımla
+def model(y, t):
+    S, I, R = y  # Duyarlı, Enfekte, Bağışık nüfusları ayır
+    N = S + I + R  # Toplam nüfusu hesapla
+    dSdt = nu * N - beta * S * I / N - mu * S - delta * S  # Duyarlı nüfusun değişim hızı
+    dIdt = beta * S * I / N - gamma * I - mu * I - alpha * I  # Enfekte nüfusun değişim hızı
+    dRdt = gamma * I - mu * R + delta * S  # Bağışık nüfusun değişim hızı
+    return [dSdt, dIdt, dRdt]
+# Sistem denklemlerini çöz
+y = odeint(model, y0, t)
+# Sonuçları ayır
+S, I, R = y[:, 0], y[:, 1], y[:, 2]
+N = S + I + R  # Toplam nüfusu hesapla
+# Sonuçları grafikle
+plt.figure(figsize=(10, 8))
+plt.plot(t, S, label="Duyarlı")
+plt.plot(t, I, label="Enfekte")
+plt.plot(t, R, label="Bağışık")
+plt.plot(t, N, label="Toplam")
+plt.xlabel("Zaman (gün)")
+plt.ylabel("Nüfus sayısı")
+plt.title("Kızamık hastalığının tedavisi için bir model")
+plt.legend()
+plt.show()
+
+Bu yazdığım Python  kodu, kızamık hastalığının tedavisi için bir matematiksel modeli çözmek ve sonuçları grafikle göstermek için kullanılıyor. Kodun yapısı şöyle:
+- İlk olarak, gerekli kütüphaneleri içe aktarıyorum. Bu kütüphaneler, matematiksel işlemler, grafik çizimi ve diferansiyel denklem çözümü için gerekli fonksiyonları sağlıyor.
+- Sonra, parametreleri tanımlıyorum. Bu parametreler, kızamık hastalığının yayılması ve tedavisi ile ilgili bazı sabit değerlerdir. Örneğin, beta, bulaşma katsayısı; gamma, iyileşme oranı; delta, aşılanma oranı gibi.
+- Daha sonra, başlangıç koşullarını tanımlıyorum. Bu koşullar, modelin başladığı zaman noktasında duyarlı, enfekte ve bağışık nüfus sayılarını belirliyor. Ayrıca, başlangıç değerleri vektörünü oluşturuyorum. Bu vektör, sistem denklemlerini çözmek için gerekli bir girdidir.
+- Ardından, zaman aralığını tanımlıyorum. Bu aralık, modelin çalıştığı süreyi ve bu süre içinde kaç tane veri noktası ürettiğini belirliyor. Örneğin, t = np.linspace(0, 200, 1000) komutu, modelin 0-200 gün arasında 1000 tane veri noktası üretmesini sağlıyor.
+- Sonra, sistem denklemlerini tanımlıyorum. Bu denklemler, duyarlı, enfekte ve bağışık nüfusların değişim hızlarını ifade ediyor. Bu denklemler, kızamık hastalığının yayılması ve tedavisi ile ilgili parametreleri ve nüfus oranlarını kullanıyor. Ayrıca, toplam nüfusu hesaplamak için N = S + I + R formülünü kullanıyorum. Bu, toplam nüfusun değişim hızını hesaplamak için gereksiz bir denklemi ortadan kaldırıyor.
+- Daha sonra, sistem denklemlerini çözüyorum. Bu işlem için, odeint fonksiyonunu kullanıyorum. Bu fonksiyon, sistem denklemlerini, başlangıç değerleri vektörünü ve zaman aralığını alarak, duyarlı, enfekte ve bağışık nüfusların zamanla nasıl değiştiğini hesaplıyor. Bu fonksiyonun çıktısı, bir matrisdir. Bu matrisin her sütunu, bir nüfus grubunun değerlerini içeriyor.
+- Son olarak, sonuçları grafikle gösteriyorum. Bu işlem için, matplotlib kütüphanesini kullanıyorum. Bu kütüphane, grafik çizimi için gerekli fonksiyonları sağlıyor. Örneğin, plt.plot fonksiyonu, bir eğri çizmek için kullanılıyor. plt.xlabel, plt.ylabel ve plt.title fonksiyonları, grafikteki eksen isimleri ve başlık belirlemek için kullanılıyor. plt.legend fonksiyonu, grafikteki eğrilerin etiketlerini göstermek için kullanılıyor. plt.show fonksiyonu, grafikteki eğrilerin etiketlerini göstermek için kullanılıyor. plt.show fonksiyonu, grafikteki eğrilerin etiketlerini göstermek için kullanılıyor.
+Bu kodun amacı, kızamık hastalığının tedavisi için bir modelin nasıl oluşturulabileceğini ve sonuçlarının nasıl analiz edilebileceğini göstermektir. Bu model, gerçek hayattaki kızamık hastalığının dinamiklerini tam olarak yansıtmayabilir, ancak bazı temel özellikleri yakalayabilir. Bu model, parametrelerin veya başlangıç koşullarının değiştirilmesiyle farklı senaryoları test etmek için de kullanılabilir.
+
+Bu kodu çalıştırmak için, Python programlama dilini destekleyen bir ortam kullanmanız gerekiyor. Örneğin, Google Colab, Jupyter Notebook, Spyder, PyCharm gibi araçlar bu iş için uygun olabilir. Bu araçlardan birini seçtikten sonra, aşağıdaki adımları izleyebilirsiniz:
+
+- Kodu kopyalayın ve aracınızın kod editörüne yapıştırın.
+- Gerekli kütüphaneleri yükleyin. Bu kütüphaneler, numpy, matplotlib ve scipy'dir. Bu kütüphaneleri yüklemek için, aracınızın terminaline veya komut satırına `pip install numpy matplotlib scipy` yazın ve enter tuşuna basın.
+- Kodu çalıştırın. Bu işlem için, aracınızın çalıştırma veya run butonuna tıklayın veya `Ctrl + Enter` tuşlarına basın.
+- Grafik sonucunu görüntüleyin. Bu işlem için, aracınızın çıktı veya output bölümüne bakın. Orada, kızamık hastalığının tedavisi için bir modelin grafiğini görebilirsiniz.
+Bu adımları takip ederek, bu kodu kolayca çalıştırabilirsiniz. 
