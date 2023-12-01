@@ -1,0 +1,116 @@
+PYTHONLA KANSER TEŞHİSİ
+# Kanser türlerini tanımlayalım
+cancer_types = ["Meme", "Akciğer", "Prostat", "Kolon", "Deri"]
+# Kanser verilerini yükleyelim
+import pandas as pd
+data = pd.read_csv("cancer_data.csv")
+# Verileri ön işleyelim
+data = data.dropna() # Eksik değerleri atalım
+data = data.drop("id", axis=1) # id sütununu atalım
+data["diagnosis"] = data["diagnosis"].map({"M": 1, "B": 0}) 
+# Tanıyı sayısal değere dönüştürelim
+# Verileri eğitim ve test olarak ayıralım
+from sklearn.model_selection import train_test_split
+X = data.drop("diagnosis", axis=1) # Girdi değişkenleri
+y = data["diagnosis"] # Çıktı değişkeni
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42) 
+# %80 eğitim, %20 test
+# Yapay sinir ağı modelini oluşturalım
+from tensorflow import keras
+model = keras.Sequential([
+    keras.layers.Dense(32, activation="relu", input_shape=(30,)), # Giriş katmanı
+    keras.layers.Dense(16, activation="relu"), # Gizli katman
+    keras.layers.Dense(1, activation="sigmoid") # Çıkış katmanı
+])
+# Modeli derleyelim
+model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
+# Modeli eğitelim
+model.fit(X_train, y_train, epochs=10, batch_size=32)
+# Modelin performansını değerlendirelim
+model.evaluate(X_test, y_test)
+#Yazan Rıdvan Kaya
+
+Bu kod, Python programlama dilini kullanarak bir yapay sinir ağı modeli oluşturmak
+ve eğitmek için yazılmıştır. Yapay sinir ağları, insan beyninin çalışma şeklini taklit
+eden yapay zeka algoritmalarıdır. Bu algoritmalar, verilerden öğrenerek karmaşık problemleri 
+çözebilirler. Bu kodda, kanser verileri kullanılarak bir yapay sinir ağı modeli eğitilir ve 
+test edilir. Bu model, bir tümörün iyi huylu mu yoksa kötü huylu mu olduğunu tahmin etmeye çalışır. 
+Bu kodun her bir satırını ayrıntılı olarak açıklayacağım:
+```python
+# Kanser türlerini tanımlayalım
+cancer_types = ["Meme", "Akciğer", "Prostat", "Kolon", "Deri"]
+```
+Bu satırda, kanser türlerini bir liste olarak tanımlıyoruz. Bu liste, daha sonra verileri analiz 
+etmek için kullanılabilir.
+```python
+# Kanser verilerini yükleyelim
+import pandas as pd
+data = pd.read_csv("cancer_data.csv")
+```
+Bu satırda, pandas adlı bir kütüphaneyi içe aktarıyoruz. Pandas, veri analizi ve manipülasyonu 
+için kullanılan popüler bir Python kütüphanesidir. Ardından, cancer_data.csv adlı bir dosyadan
+kanser verilerini okuyoruz ve data adlı bir değişkene atıyoruz. Bu dosya, Wisconsin Üniversitesi'nden 
+alınan meme kanseri verilerini içerir.
+```python
+# Verileri ön işleyelim
+data = data.dropna() # Eksik değerleri atalım
+data = data.drop("id", axis=1) # id sütununu atalım
+data["diagnosis"] = data["diagnosis"].map({"M": 1, "B": 0}) # Tanıyı sayısal değere dönüştürelim
+```
+Bu satırda, verileri ön işliyoruz. Ön işleme, verileri model için uygun hale getirmek için yapılan
+bir adımdır. Bu adımda, eksik değerleri ve gereksiz sütunları atıyoruz. Ayrıca, tanı sütununu sayısal 
+değere dönüştürüyoruz. Bu sütun, tümörün kötü huylu (M) veya iyi huylu (B) olduğunu gösterir. Biz, bu 
+sütunu 1 veya 0 olarak kodluyoruz.
+```python
+# Verileri eğitim ve test olarak ayıralım
+from sklearn.model_selection import train_test_split
+X = data.drop("diagnosis", axis=1) # Girdi değişkenleri
+y = data["diagnosis"] # Çıktı değişkeni
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42) # %80 eğitim, %20 test
+```
+Bu satırda, verileri eğitim ve test olarak ayırıyoruz. Eğitim verileri, modeli eğitmek için kullanılır. Test verileri, 
+modelin performansını değerlendirmek için kullanılır. Bu adımda, sklearn adlı bir kütüphaneyi içe aktarıyoruz. Sklearn,
+makine öğrenimi için kullanılan popüler bir Python kütüphanesidir. Ardından, girdi ve çıktı değişkenlerini tanımlıyoruz. 
+Girdi değişkenleri, tümörün özelliklerini içerir. Çıktı değişkeni, tümörün tanısını içerir. Son olarak, train_test_split 
+fonksiyonunu kullanarak verileri %80 eğitim ve %20 test olarak bölüyoruz. Random_state parametresi, verilerin karıştırılma 
+şeklini belirler.
+```python
+# Yapay sinir ağı modelini oluşturalım
+from tensorflow import keras
+model = keras.Sequential([
+    keras.layers.Dense(32, activation="relu", input_shape=(30,)), # Giriş katmanı
+    keras.layers.Dense(16, activation="relu"), # Gizli katman
+    keras.layers.Dense(1, activation="sigmoid") # Çıkış katmanı
+])
+```
+Bu satırda, yapay sinir ağı modelini oluşturuyoruz. Bu adımda, tensorflow adlı bir kütüphaneyi içe aktarıyoruz. 
+Tensorflow, yapay zeka için kullanılan popüler bir Python kütüphanesidir. Ardından, keras adlı bir alt kütüphaneyi 
+kullanarak modelimizi tanımlıyoruz. Modelimiz, üç katmandan oluşur: giriş katmanı, gizli katman ve çıkış katmanı. 
+Giriş katmanı, verilerin modele girdiği katmandır. Gizli katman, verilerin işlendiği ve öğrenildiği katmandır.
+Çıkış katmanı, modelin tahminini ürettiği katmandır. Her katman, birim sayısı, aktivasyon fonksiyonu ve giriş şekli 
+gibi parametreler alır. Birim sayısı, katmandaki nöron sayısını belirtir. Aktivasyon fonksiyonu, nöronun çıktısını 
+hesaplamak için kullanılan matematiksel fonksiyondur. Giriş şekli, katmana giren verinin boyutunu belirtir.
+```python
+# Modeli derleyelim
+model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
+```
+Bu satırda, modeli derliyoruz. Derleme, modelin eğitimi için gerekli ayarları yapmak anlamına gelir. Bu adımda,
+üç parametre belirtiyoruz: optimizer, loss ve metrics. Optimizer, modelin ağırlıklarını güncellemek için kullanılan 
+algoritmadır. Loss, modelin hatalarını ölçmek için kullanılan fonksiyondur. Metrics, modelin performansını değerlendirmek 
+için kullanılan göstergedir.
+```python
+# Modeli eğitelim
+model.fit(X_train, y_train, epochs=10, batch_size=32)
+```
+Bu satırda, modeli eğitiyoruz. Eğitim, modelin verilerden öğrenmesi anlamına gelir. Bu adımda, dört parametre 
+belirtiyoruz: X_train, y_train, epochs ve batch_size. X_train ve y_train, eğitim verilerini içeren değişkenlerdir.
+Epochs, modelin eğitim verilerini kaç kez göreceğini belirtir. Batch_size, modelin her seferinde kaç veri noktası işleyeceğini belirtir.
+```python
+# Modelin performansını değerlendirelim
+model.evaluate(X_test, y_test)
+```
+Bu satırda, modelin performansını değerlendiriyoruz. Değerlendirme, modelin test verileri üzerinde ne kadar iyi çalıştığını görmek anlamına gelir. 
+Bu adımda, iki parametre belirtiyoruz: X_test ve y_test. X_test ve y_test, test verilerini içeren değişkenlerdir. Model, test verilerini kullanarak
+tahminler yapar ve loss ve metrics değerlerini döndürür.
+
+Bu kodu çalıştırmak için, Python programlama dilini bilgisayarınıza kurmanız gerekiyor. Python, ücretsiz ve açık kaynaklı bir programlama dilidir. Python'u indirip kurun. Python'u kurduktan sonra, bir metin editörü veya bir geliştirme ortamı kullanarak bu kodu bir dosyaya kaydedebilirsiniz. Dosyanın adını cancer_detection.py gibi bir şey yapabilirsiniz. Sonra, bir komut satırı veya bir terminal açarak, dosyanın bulunduğu klasöre gidin. Örneğin, dosyanız Masaüstü klasöründe ise, cd Masaüstü komutunu yazabilirsiniz. Ardından, python cancer_detection.py komutunu yazarak, bu kodu çalıştırabilirsiniz. Bu komut, kodun ekrana çıktılarını gösterecektir. Bu kodu çalıştırmak için, ayrıca kanser verilerini içeren cancer_data.csv adlı bir dosyaya da ihtiyacınız olacak. Bu dosyayı indirin. Bu dosyayı, kodun bulunduğu aynı klasöre kaydetmeniz gerekiyor. Bu kodu çalıştırmak için, bu adımları takip edebilirsiniz. 
