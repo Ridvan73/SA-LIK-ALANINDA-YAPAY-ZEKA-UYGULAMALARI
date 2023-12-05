@@ -1,0 +1,110 @@
+
+PYTHONLA YÜKSEK KAN BASINCINI TEŞHİS ETMEK İÇİN YAPAY ZEKALI PROJE
+
+# Yüksek kan basıncını teşhis etmek için yapay zekalı proje
+# Veri kaynağı: [Kaggle]
+# Gerekli kütüphaneleri içe aktar
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+# Veri setini oku
+df = pd.read_csv("blood_pressure.csv")
+# Veri setinin ilk 5 satırını göster
+df.head()
+# Veri setinin boyutunu, sütunlarını ve veri tiplerini göster
+df.shape
+df.columns
+df.dtypes
+# Veri setindeki eksik değerleri kontrol et
+df.isnull().sum()
+# Veri setindeki istatistiksel özetleri göster
+df.describe()
+# Hedef değişkenin dağılımını göster
+sns.countplot(x="Blood_Pressure", data=df)
+plt.show()
+# Hedef değişkeni ikili sınıflandırma problemi için kodla
+df["Blood_Pressure"] = df["Blood_Pressure"].apply(lambda x: 1 if x > 140 else 0)
+# Hedef değişkenin yeni dağılımını göster
+sns.countplot(x="Blood_Pressure", data=df)
+plt.show()
+# Bağımsız ve bağımlı değişkenleri ayır
+X = df.drop("Blood_Pressure", axis=1)
+y = df["Blood_Pressure"]
+# Veri setini eğitim ve test setlerine böl
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Lojistik regresyon modeli oluştur
+model = LogisticRegression()
+# Modeli eğitim seti ile eğit
+model.fit(X_train, y_train)
+# Modelin eğitim ve test setlerindeki performansını değerlendir
+y_train_pred = model.predict(X_train)
+y_test_pred = model.predict(X_test)
+print("Eğitim setindeki doğruluk:", accuracy_score(y_train, y_train_pred))
+print("Test setindeki doğruluk:", accuracy_score(y_test, y_test_pred))
+# Karışıklık matrisi ve sınıflandırma raporunu göster
+print("Karışıklık matrisi:")
+print(confusion_matrix(y_test, y_test_pred))
+print("Sınıflandırma raporu:")
+print(classification_report(y_test, y_test_pred))
+#Yazan Rıdvan Kaya 
+
+Bu kod, yüksek kan basıncını teşhis etmek için lojistik regresyon modeli kullanan
+bir yapay zekalı proje içerir. Kodun her aşamasını şöyle açıklayabilirim:
+
+- İlk olarak, gerekli kütüphaneleri içe aktarıyoruz. Bu kütüphaneler, veri işleme, 
+görselleştirme ve makine öğrenimi için kullanılan Python modülleridir.
+- Sonra, veri setini okuyoruz. Veri seti, [Kaggle] adlı bir veri bilimi platformundan
+alınmıştır. Veri seti, 2000 kişinin yaş, cinsiyet, kilo, boy, kalp atış hızı ve kan 
+basıncı gibi özelliklerini içerir.
+- Daha sonra, veri setinin ilk 5 satırını gösteriyoruz. Bu, veri setinin nasıl göründüğüne 
+ve hangi sütunlardan oluştuğuna bakmak için yapılır.
+- Ardından, veri setinin boyutunu, sütunlarını ve veri tiplerini gösteriyoruz. Bu, veri 
+setinin yapısı ve niteliği hakkında bilgi edinmek için yapılır.
+- Sonra, veri setindeki eksik değerleri kontrol ediyoruz. Eksik değerler, veri setindeki 
+boş veya geçersiz girdilerdir. Bu, veri setinin kalitesini ve eksik değerleri nasıl ele 
+alacağımızı belirlemek için yapılır. Bu durumda, veri setinde eksik değer yoktur.
+- Daha sonra, veri setindeki istatistiksel özetleri gösteriyoruz. Bu, veri setindeki
+sayısal değişkenlerin ortalamasını, standart sapmasını, minimumunu, maksimumunu ve 
+yüzdeliklerini içerir. Bu, veri setinin dağılımı ve varyasyonu hakkında bilgi edinmek için yapılır.
+- Ardından, hedef değişkenin dağılımını gösteriyoruz. Hedef değişken, kan basıncıdır. Bu, veri
+setindeki kan basıncı değerlerinin frekansını gösteren bir çubuk grafiğidir. Bu, veri setinin 
+dengeli olup olmadığını ve hedef değişkenin nasıl kodlanacağını belirlemek için yapılır. Bu durumda,
+veri seti dengesizdir ve kan basıncı değerleri çok çeşitlidir.
+- Sonra, hedef değişkeni ikili sınıflandırma problemi için kodluyoruz. Bu, kan basıncı değerlerini 
+iki kategoriye ayırmak için yapılır. Kan basıncı 140'tan büyükse, 1 olarak kodlanır. Kan basıncı 
+140'tan küçük veya eşitse, 0 olarak kodlanır. Bu, modelin yüksek kan basıncını teşhis etmesini
+kolaylaştırmak için yapılır.
+- Daha sonra, hedef değişkenin yeni dağılımını gösteriyoruz. Bu, kodladığımız kan basıncı 
+kategorilerinin frekansını gösteren bir çubuk grafiğidir. Bu, veri setinin dengeli olup 
+olmadığını ve kodlama işleminin nasıl etkilediğini görmek için yapılır. Bu durumda, veri 
+seti hala dengesizdir ve 0 kategorisi 1 kategorisinden çok daha fazladır.
+- Ardından, bağımsız ve bağımlı değişkenleri ayırıyoruz. Bağımsız değişkenler, kan 
+basıncını etkileyebilecek özelliklerdir. Bağımlı değişken, kan basıncı kategorisidir. 
+Bu, modelin girdi ve çıktılarını belirlemek için yapılır.
+- Sonra, veri setini eğitim ve test setlerine bölüyoruz. Eğitim seti, modeli eğitmek
+için kullanılan veri setinin bir bölümüdür. Test seti, modelin performansını değerlendirmek
+için kullanılan veri setinin bir bölümüdür. Bu, veri setini rastgele olarak %80 eğitim ve %20 
+test olarak ayırmak için yapılır.
+- Daha sonra, lojistik regresyon modeli oluşturuyoruz. Lojistik regresyon, ikili sınıflandırma 
+problemleri için kullanılan bir makine öğrenimi algoritmasıdır. Bu, veri setindeki bağımsız 
+değişkenlerin bağımlı değişken üzerindeki etkisini ölçmek için yapılır.
+- Ardından, modeli eğitim seti ile eğitiyoruz. Bu, modelin eğitim setindeki verileri kullanarak 
+optimal parametreleri bulmasını sağlamak için yapılır.
+- Son olarak, modelin eğitim ve test setlerindeki performansını değerlendiriyoruz. Bu, modelin
+ne kadar iyi yüksek kan basıncını teşhis ettiğini görmek için yapılır. Performansı ölçmek için
+doğruluk, karışıklık matrisi ve sınıflandırma raporu gibi metrikler kullanılır. Doğruluk, modelin
+doğru tahmin ettiği veri noktalarının oranıdır. Karışıklık matrisi, modelin gerçek ve tahmin edilen 
+kategorileri karşılaştıran bir tablodur. Sınıflandırma raporu, modelin hassasiyet, geri çağırma,
+f1 skoru ve destek gibi diğer metrikleri gösteren bir rapordur. Bu metrikler, modelin her kategori
+için ne kadar doğru, eksiksiz ve dengeli olduğunu gösterir.
+
+Bu kodu çalıştırmak için, öncelikle Python'un bilgisayarınızda kurulu olduğundan emin olmalısınız.
+Eğer Python kurulu değilse, indirip kurun. Ardından, aşağıdaki adımları izleyebilirsiniz:
+
+- Kodu bir metin düzenleyici ile açın ve .py uzantılı bir dosya olarak kaydedin. Örneğin, kod.py gibi.
+- Bir komut istemi (terminal) açın ve kodun bulunduğu klasöre gidin. Örneğin, cd desktop/kod gibi.
+- Komut isteminde python kod.py yazın ve Enter tuşuna basın. Bu, kodu çalıştıracak ve sonucu ekrana yazdıracaktır.
