@@ -1,0 +1,83 @@
+
+PYTHONLA ŞİZOTİPAL KİŞİLİK BOZUKLUĞU TEŞHİSİ
+
+```python
+# Kütüphaneleri içe aktar
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+# Veriyi yükle
+veri = pd.read_csv("spq_spd_data.csv")
+# Veri Ön İşleme
+# Eksik değerleri kontrol et
+print("Eksik değerler:\n", veri.isnull().sum())
+# Veriyi özellikler (X) ve etiketler (y) olarak ayır
+X = veri.iloc[:, :-1]
+y = veri.iloc[:, -1]
+# Özellikleri standartlaştır
+scaler = StandardScaler()
+X = scaler.fit_transform(X)
+# Veriyi keşfet
+# Gerekirse veri dağılımını veya korelasyonu görselleştir
+# Veriyi eğitim ve test setlerine ayır
+X_egitim, X_test, y_egitim, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Lojistik regresyon modeli oluştur ve eğit
+model = LogisticRegression(random_state=42, max_iter=1000)
+# Çapraz doğrulama
+cv_skorlari = cross_val_score(model, X_egitim, y_egitim, cv=5, scoring='accuracy')
+print("Çapraz doğrulama skorları:", cv_skorlari)
+print("Ortalama Çapraz Doğrulama doğruluğu:", np.mean(cv_skorlari))
+# Test seti üzerinde tahmin yap
+model.fit(X_egitim, y_egitim)
+y_tahmin = model.predict(X_test)
+# Model performansını değerlendir
+print("Doğruluk:", accuracy_score(y_test, y_tahmin))
+print("Karmaşıklık matrisi:\n", confusion_matrix(y_test, y_tahmin))
+print("Sınıflandırma raporu:\n", classification_report(y_test, y_tahmin))
+#Yazan Rıdvan Kaya 
+```
+Bu kod, şizotipal kişilik bozukluğu (SPD) olan veya olma riski taşıyan
+kişileri tespit etmek için kullanılır. SPD, gerçeklikten kopukluk,
+tuhaf davranışlar, sosyal izolasyon ve şizofreniye benzer belirtiler
+gösteren bir kişilik bozukluğudur. Bu kod, SPQ-C adlı bir anketi kullanarak 
+kişilerin SPD'ye yatkınlıklarını ölçer ve lojistik regresyon modeli ile sınıflandırır.
+SPQ-C, çocuklar için geliştirilmiş bir öz bildirim anketidir ve 5 farklı faktör yapısı
+test edilmiştir. Bu kod, veri setini standartlaştırır, çapraz doğrulama yapar, test seti
+üzerinde tahminler üretir ve model performansını değerlendirir. Veri seti, spq_spd_data.csv 
+adlı bir dosyadan okunur. Bu dosya, GitHub'da bulunabilir. 
+
+Bu kod, spq_spd_data.csv adlı bir veri setini kullanarak lojistik regresyon modeli ile ikili 
+sınıflandırma yapmayı amaçlayan bir Python kodudur. Kodun yaptığı işlemler şunlardır:
+- Kütüphaneleri içe aktar: Bu kod, numpy, pandas, sklearn gibi gerekli kütüphaneleri içe
+aktarmak için import komutunu kullanır. Bu kütüphaneler, veri işleme, model oluşturma, 
+performans ölçme gibi işlevleri sağlar.
+- Veriyi yükle: Bu kod, pd.read_csv() fonksiyonu ile spq_spd_data.csv adlı veri setini okur 
+ve veri değişkenine atar. Bu veri seti, 16 özellik ve 1 etiket içeren bir tablodur. Etiket, 
+0 veya 1 değerleri alabilir.
+- Veri Ön İşleme: Bu kod, veri setinde eksik değer olup olmadığını kontrol eder ve veriyi 
+özellikler (X) ve etiketler (y olarak ayırır. Ayrıca, özellikleri standartlaştırmak için 
+StandardScaler() sınıfını kullanır. Standartlaştırma, verinin ortalamasını 0 ve standart 
+sapmasını 1 yaparak ölçek sorunlarını önlemeye yarar.
+- Veriyi keşfet: Bu kod, veri dağılımını veya korelasyonu görselleştirmek için gerekirse
+grafik çizmeyi planlar. Ancak, bu kodda bu adım gerçekleştirilmemiştir.
+- Veriyi eğitim ve test setlerine ayır: Bu kod, train_test_split() fonksiyonu ile veriyi 
+rastgele olarak eğitim ve test setlerine ayırır. Test setinin boyutu, verinin %20'si olarak 
+belirlenmiştir. Ayrıca, random_state parametresi ile rastgeleliği kontrol etmek için bir değer verilmiştir.
+- Lojistik regresyon modeli oluştur ve eğit: Bu kod, LogisticRegression() sınıfı ile bir lojistik
+regresyon modeli oluşturur. Bu model, ikili sınıflandırma yapmak için kullanılan bir makine öğrenmesi
+algoritmasıdır. Modelin random_state ve max_iter parametreleri, rastgeleliği ve iterasyon sayısını 
+belirlemek için verilmiştir.
+- Çapraz doğrulama: Bu kod, cross_val_score() fonksiyonu ile modelin eğitim setindeki performansını 
+ölçmek için çapraz doğrulama yapar. Çapraz doğrulama, veriyi k katlı olarak bölerek her seferinde 
+bir katı test, diğerlerini eğitim olarak kullanır ve modelin doğruluğunu hesaplar. Bu kodda,
+cv parametresi ile k değeri 5 olarak verilmiştir. Ayrıca, scoring parametresi ile doğruluk metriği 
+seçilmiştir. Sonuç olarak, modelin 5 farklı doğruluk skoru ve bunların ortalaması ekrana yazdırılır.
+- Test seti üzerinde tahmin yap: Bu kod, model.fit() fonksiyonu ile modeli eğitim seti ile eğitir ve model.predict() fonksiyonu ile test seti üzerinde tahmin yapar. Tahmin edilen etiketler, y_tahmin değişkenine kaydedilir.
+- Model performansını değerlendir: Bu kod, modelin test seti üzerindeki performansını değerlendirmek için çeşitli metrikler kullanır. Bunlar şunlardır:
+    - Doğruluk: Bu metrik, modelin doğru tahmin ettiği örneklerin oranını verir. accuracy_score() fonksiyonu ile hesaplanır.
+    - Karmaşıklık matrisi: Bu matris, modelin tahminlerinin gerçek etiketlerle karşılaştırılması sonucu oluşan dört farklı durumu gösterir. Bunlar, doğru pozitif (TP), yanlış pozitif (FP), doğru negatif (TN) ve yanlış negatif (FN) dir. confusion_matrix() fonksiyonu ile hesaplanır.
+    - Sınıflandırma raporu: Bu rapor, modelin her sınıf için hassasiyet, geri çağırma, f1 skoru ve destek değerlerini verir. Ayrıca, modelin ortalama değerlerini de içerir. classification_report() fonksiyonu ile hesaplanır.
+Kodun sonunda, yazan Rıdvan Kaya yazısı vardır. Bu, kodun sahibini veya kaynağını belirtmek için eklenmiştir.
