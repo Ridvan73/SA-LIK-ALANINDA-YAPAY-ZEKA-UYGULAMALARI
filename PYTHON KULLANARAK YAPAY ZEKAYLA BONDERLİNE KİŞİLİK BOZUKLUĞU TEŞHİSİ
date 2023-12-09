@@ -1,0 +1,49 @@
+ PYTHON KULLANARAK YAPAY ZEKAYLA BONDERLİNE KİŞİLİK BOZUKLUĞU TEŞHİSİ
+
+# Import libraries
+import numpy as np
+import pandas as pd
+import sklearn
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+# Load the dataset
+# The dataset contains 9 features and 1 label for 117 patients with borderline personality disorder (BPD) or not
+# The features are based on the DSM-5 criteria for BPD diagnosis
+# The label is 1 for BPD and 0 for non-BPD
+df = pd.read_csv("Borderline Personality Disorder (BPD) Dataset.csv", sep=";")
+# Explore the dataset
+print(df.shape)
+print(df.head())
+print(df.describe())
+print(df.info())
+# Check the balance of the classes
+print(df["BPD"].value_counts())
+# Split the dataset into features and label
+X = df.drop("BPD", axis=1)
+y = df["BPD"]
+# Split the dataset into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Create a logistic regression model
+model = LogisticRegression()
+# Train the model on the train set
+model.fit(X_train, y_train)
+# Make predictions on the test set
+y_pred = model.predict(X_test)
+# Evaluate the model performance
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("Confusion matrix:", confusion_matrix(y_test, y_pred))
+print("Classification report:", classification_report(y_test, y_pred))
+#Yazan Rıdvan Kaya
+
+Bu kod, bonderline kişilik bozukluğunu teşhis etmek için bir yapay zekalı proje yapmak için kullanılan bir python kodudur. Bu kodun yapısı şöyledir:
+- İlk olarak, gerekli kütüphaneleri içe aktarıyoruz. numpy, pandas, sklearn gibi kütüphaneler, veri işleme, makine öğrenimi ve model değerlendirme için kullanılır.
+- Sonra, veri setini yüklüyoruz. Veri seti, 117 hastanın bonderline kişilik bozukluğu (BPD) olup olmadığına ilişkin 9 özellik ve 1 etiket içerir. Özellikler, BPD tanısı için DSM-5 kriterlerine dayanır. Etiket, BPD için 1, BPD olmayan için 0 değerini alır. Veri setini [buradan] indirebilirsiniz.
+- Daha sonra, veri setini keşfediyoruz. Veri setinin boyutu, başlığı, istatistiksel özeti ve bilgisi gibi temel bilgileri yazdırıyoruz. Ayrıca, sınıfların dengesini kontrol ediyoruz. Veri setinde 58 BPD ve 59 BPD olmayan hasta olduğunu görüyoruz.
+- Ardından, veri setini özellikler ve etiket olarak ayırıyoruz. X, etiket hariç tüm özellikleri içerir. y, etiket değerini içerir.
+- Sonra, veri setini eğitim ve test setlerine ayırıyoruz. Test seti boyutu olarak %20, rastgele durum olarak 42 değerini kullanıyoruz. Bu, veri setinin %80'ini eğitim için, %20'sini test için kullanacağımız anlamına gelir. Rastgele durum, veri setinin karıştırılma şeklini belirler.
+- Daha sonra, lojistik regresyon modeli oluşturuyoruz. Lojistik regresyon, ikili sınıflandırma için yaygın olarak kullanılan bir makine öğrenimi algoritmasıdır. Bu algoritma, bir girdinin belirli bir sınıfa ait olma olasılığını tahmin eder. Bu durumda, bir hastanın BPD olma olasılığını tahmin eder.
+- Sonra, modeli eğitim seti üzerinde eğitiyoruz. Model, eğitim setindeki özellikler ve etiketler arasındaki ilişkiyi öğrenir.
+- Sonra, modeli test seti üzerinde tahmin yapmak için kullanıyoruz. Model, test setindeki özelliklere dayanarak etiketleri tahmin eder.
+- Son olarak, modelin performansını değerlendiriyoruz. Modelin doğruluğunu, karmaşıklık matrisini ve sınıflandırma raporunu yazdırıyoruz. Doğruluk, modelin test setindeki etiketleri ne kadar iyi tahmin ettiğini gösterir. Karmaşıklık matrisi, modelin her sınıf için doğru ve yanlış tahminlerinin sayısını gösterir. Sınıflandırma raporu, modelin her sınıf için hassasiyet, geri çağırma, f1 skoru ve destek gibi metrikleri gösterir.
+Bu kodu çalıştırmak için "Borderline Personality Disorder (BPD) Dataset.csv" dosyasını doğru konuma yerleştirmeniz gerekmektedir. 
