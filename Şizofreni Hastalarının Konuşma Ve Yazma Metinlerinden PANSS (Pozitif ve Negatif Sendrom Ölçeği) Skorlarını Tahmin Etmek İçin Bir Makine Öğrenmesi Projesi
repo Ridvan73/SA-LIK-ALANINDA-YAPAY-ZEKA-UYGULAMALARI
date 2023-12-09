@@ -1,0 +1,103 @@
+ Şizofreni Hastalarının Konuşma Ve Yazma Metinlerinden PANSS (Pozitif ve Negatif Sendrom Ölçeği) Skorlarını Tahmin Etmek İçin Bir Makine Öğrenmesi Projesi
+# Import libraries
+import numpy as np
+import pandas as pd
+import spacy
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+# Load data
+data = pd.read_csv("schizophrenia_data.csv")
+data.head()
+# Split data into train and test sets
+train, test = train_test_split(data, test_size=0.2, random_state=42)
+# Load a pre-trained language model for Turkish
+nlp = spacy.load("tr_core_news_md")
+# Define a function to preprocess text
+def preprocess(text):
+    """
+    Tokenize, lemmatize, and remove stopwords and punctuation from text.
+    """
+    doc = nlp(text)
+    tokens = [token.lemma_ for token in doc if not token.is_stop and not token.is_punct]
+    return " ".join(tokens)
+# Apply the preprocess function to the text columns
+train["speech"] = train["speech"].apply(preprocess)
+train["writing"] = train["writing"].apply(preprocess)
+test["speech"] = test["speech"].apply(preprocess)
+test["writing"] = test["writing"].apply(preprocess)
+# Define a function to extract features from text using TF-IDF
+def extract_features(text):
+    """
+    Initialize a TF-IDF vectorizer and transform the text into features.
+    """
+    vectorizer = TfidfVectorizer()
+    features = vectorizer.fit_transform(text)
+    return features
+# Extract features from the speech and writing columns
+X_train_speech = extract_features(train["speech"])
+X_train_writing = extract_features(train["writing"])
+X_test_speech = extract_features(test["speech"])
+X_test_writing = extract_features(test["writing"])
+# Define a function to train a linear regression model
+def train_model(X_train, y_train):
+    """
+    Initialize a linear regression model and fit it to the training data.
+    """
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+    return model
+# Define a function to evaluate a model
+def evaluate_model(model, X_test, y_test):
+    """
+    Predict PANSS scores for the test data and calculate RMSE.
+    """
+    y_pred = model.predict(X_test)
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    return rmse
+# Train a model for speech and writing separately
+model_speech = train_model(X_train_speech, y_train)
+model_writing = train_model(X_train_writing, y_train)
+# Evaluate the models for speech and writing separately
+rmse_speech = evaluate_model(model_speech, X_test_speech, y_test)
+rmse_writing = evaluate_model(model_writing, X_test_writing, y_test)
+# Print the results
+print(f"RMSE for speech: {rmse_speech:.2f}")
+print(f"RMSE for writing: {rmse_writing:.2f}")
+#Yazan Rıdvan Kaya 
+Bu kod, şizofreni hastalarının konuşma ve yazma metinlerinden PANSS 
+(Pozitif ve Negatif Sendrom Ölçeği) skorlarını tahmin etmek için bir
+makine öğrenmesi projesidir. Kodun yaptığı şeyler şunlardır:
+- Gerekli kütüphaneleri içe aktarır. Bu kütüphaneler, veri işleme,
+doğal dil işleme, model eğitimi ve değerlendirme için kullanılır.
+- Veri setini yükler. Veri seti, şizofreni hastalarının konuşma ve 
+yazma metinleri ile PANSS skorlarını içerir.
+- Veri setini eğitim ve test setlerine ayırır. Test seti, modelin 
+performansını ölçmek için kullanılır.
+- Türkçe için önceden eğitilmiş bir dil modeli yükler. Bu model, 
+metinleri işlemek için kullanılır.
+- Metinleri ön işlemeye tabi tutan bir fonksiyon tanımlar. Bu 
+fonksiyon, metinleri bölümlere ayırır, köklerine indirger ve durak 
+sözcükleri ve noktalama işaretlerini kaldırır.
+- Ön işleme fonksiyonunu, konuşma ve yazma sütunlarına uygular.
+- Metinlerden TF-IDF kullanarak öznitelik çıkaran bir fonksiyon 
+tanımlar. TF-IDF, metinlerdeki sözcüklerin önemini ölçen bir yöntemdir.
+- Konuşma ve yazma sütunlarından öznitelik çıkarır.
+- Doğrusal regresyon modeli eğiten bir fonksiyon tanımlar. Doğrusal
+regresyon, bağımlı ve bağımsız değişkenler arasındaki ilişkiyi bulmaya
+çalışan bir yöntemdir.
+- Modeli değerlendiren bir fonksiyon tanımlar. Model, test verileri
+için PANSS skorlarını tahmin eder ve RMSE (Kök Ortalama Kare Hata) hesaplar. 
+RMSE, tahminlerin gerçek değerlerden ne kadar uzak olduğunu gösteren bir ölçüttür.
+- Konuşma ve yazma için ayrı ayrı model eğitir.
+- Konuşma ve yazma için ayrı ayrı model değerlendirir.
+- Sonuçları yazdırır. RMSE değerleri, modelin ne kadar iyi performans gösterdiğini
+gösterir. Düşük RMSE değerleri, modelin daha doğru tahminler yaptığı anlamına gelir.
+Bu kodu çalıştırmak için şu adımları izleyebilirsiniz:
+- Bir Python ortamı kurun. Bu, kodun çalışması için gerekli kütüphaneleri içerir. 
+Örneğin, Google Colab gibi bir çevrimiçi ortam kullanabilirsiniz.
+- Veri setini indirin ve ortamınıza yükleyin.  
+- Kodu bir metin editörüne kopyalayın ve çalıştırın. Kodu çalıştırmak için [Shift + Enter] 
+tuşlarına basabilirsiniz. Kod, her bir hücreyi sırayla çalıştırır ve sonuçları ekranda gösterir.
+Bu adımları takip ederek, şizofreni hastalarının konuşma ve yazma metinlerinden PANSS skorlarını tahmin etmek için bir makine öğrenmesi modeli eğitmiş ve değerlendirmiş olacaksınız. 
