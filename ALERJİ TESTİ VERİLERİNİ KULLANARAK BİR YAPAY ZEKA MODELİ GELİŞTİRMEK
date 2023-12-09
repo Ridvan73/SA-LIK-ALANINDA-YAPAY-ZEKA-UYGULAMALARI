@@ -1,0 +1,148 @@
+ ALERJİ TESTİ VERİLERİNİ KULLANARAK BİR YAPAY ZEKA MODELİ GELİŞTİRMEK
+import tensorflow as tf
+from tensorflow import keras
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+data = pd.read_csv("alerji_testi.csv")
+data.head()
+X = data.drop("alerji", axis=1)
+y = data["alerji"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = keras.Sequential([
+    keras.layers.Dense(5, input_shape=(5,)),
+    keras.layers.Dense(16, activation="relu"),
+    keras.layers.Dense(1, activation="sigmoid")
+])
+model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"])
+model.fit(X_train, y_train, epochs=10, batch_size=32)
+# Tahminleri doğrudan ham olasılıklar olarak alın
+predictions = (model.predict(X_test) > 0.5).astype("int32")
+# Sınıflandırma raporu
+cr = classification_report(y_test, predictions)
+print(cr)
+# Karışıklık matrisi
+cm = confusion_matrix(y_test, predictions)
+sns.heatmap(cm, annot=True, fmt="d")
+plt.xlabel("Tahmin Edilen")
+plt.ylabel("Gerçek")
+plt.show()
+# Diğer metrikleri hesapla
+loss, accuracy = model.evaluate(X_test, y_test)
+print("Loss:", loss)
+print("Accuracy:", accuracy)
+#Yazan Rıdvan Kaya 
+Bu kod, alerji testi verilerini
+kullanarak bir yapay sinir ağı
+modeli oluşturmak ve test etmek
+için yazılmıştır. Kodun yaptığı
+işlemleri adım adım açıklamaya çalışacağım:
+- İlk olarak, gerekli kütüphaneleri içe 
+aktarıyoruz. "TensorFlow" ve "Keras", 
+yapay sinir ağları oluşturmak ve 
+eğitmek için kullanılan popüler 
+Python kütüphaneleridir. "Scikit-learn",
+veri bölme, model değerlendirme ve metrik 
+hesaplama gibi makine öğrenimi görevleri 
+için kullanılan bir Python kütüphanesidir. 
+"Pandas", veri manipülasyonu ve analizi
+için kullanılan bir Python kütüphanesidir.
+"NumPy", bilimsel hesaplama için kullanılan
+bir Python kütüphanesidir. "Matplotlib" ve
+"Seaborn",  veri görselleştirme için kullanılan 
+Python kütüphaneleridir.
+- Sonra, alerji testi verilerini bir CSV 
+dosyasından okuyoruz ve ilk beş satırını 
+görüntülüyoruz. Bu veri seti, beş girdi 
+özelliği ("yaş, cinsiyet, kilo, boy, kan 
+grubu") ve bir çıktı etiketi ('alerji")
+içerir. Alerji, 0 veya 1 olarak kodlanmıştır. 
+0, alerjisi olmayan kişileri, 1 ise alerjisi 
+olan kişileri temsil eder.
+- Daha sonra, veri setini girdi ve çıktı olarak
+ayırıyoruz. Girdi, "X" değişkenine, çıktı ise "y" 
+değişkenine atanır. Alerji sütununu veri setinden 
+çıkarıyoruz, çünkü bu bizim tahmin etmek 
+istediğimiz etiketimizdir.
+- Ardından, veri setini eğitim ve test
+olarak ikiye bölüyoruz. Eğitim verileri, 
+modeli eğitmek için kullanılır. Test
+verileri ise modelin performansını
+değerlendirmek için kullanılır. Test 
+verilerinin boyutunu %20 olarak 
+belirliyoruz ve rastgele durumu 42 
+olarak ayarlıyoruz. Bu, veri bölümünün
+her seferinde aynı olmasını sağlar.
+- Sonra, yapay sinir ağı modelimizi
+oluşturuyoruz. Modelimiz, üç katmandan 
+oluşur. İlk katman, girdi katmanıdır 
+ve beş nöron içerir. Girdi katmanı,
+veri setimizdeki beş özelliği alır.
+İkinci katman, gizli katmandır ve 
+16 nöron içerir. Gizli katman, girdi
+katmanından gelen bilgileri işler ve 
+aktivasyon fonksiyonu olarak "relu"
+kullanır. Relu, doğrusal olmayan bir 
+fonksiyondur ve nöronun çıktısını
+sıfır veya pozitif olarak belirler. 
+Üçüncü katman, çıktı katmanıdır ve
+bir nöron içerir. Çıktı katmanı,
+modelin tahminini üretir ve aktivasyon
+fonksiyonu olarak "sigmoid" kullanır.
+Sigmoid, 0 ile 1 arasında bir değer
+döndüren bir fonksiyondur. Bu değer, 
+alerji olasılığını temsil eder.
+- Daha sonra, modelimizi derliyoruz. 
+Derleme, modelin nasıl eğitileceğini
+ve değerlendirileceğini belirler. 
+Kayıp fonksiyonu olarak "binary_crossentropy" 
+kullanıyoruz. Binary_crossentropy, ikili 
+sınıflandırma problemleri için uygun bir 
+kayıp fonksiyonudur ve modelin tahminleri 
+ile gerçek etiketler arasındaki farkı ölçer. 
+Optimizasyon algoritması olarak "adam"
+kullanıyoruz. Adam, modelin ağırlıklarını 
+güncellemek için kullanılan etkili bir
+optimizasyon algoritmasıdır. Metrik olarak 
+"accuracy" kullanıyoruz. Accuracy, modelin
+doğru tahmin ettiği örneklerin yüzdesini verir.
+- Ardından, modelimizi eğitiyoruz. Eğitim,
+modelin verilerden öğrenmesini sağlar.
+Eğitim verilerini ve etiketlerini modelimize
+veriyoruz. Epoch sayısını 10 olarak belirliyoruz.
+Epoch, veri setinin tamamının model tarafından 
+kaç kez işlendiğini gösterir. Küme boyutunu 32 
+olarak belirliyoruz. Küme boyutu, modelin her 
+adımda kaç örnek aldığını gösterir.
+- Sonra, modelimizi test ediyoruz. Test, 
+modelin görmediği veriler üzerinde nasıl 
+performans gösterdiğini ölçer. Test
+verilerini modelimize veriyoruz ve 
+tahminleri alıyoruz. Tahminleri doğrudan
+ham olasılıklar olarak alıyoruz ve 0.5'ten 
+büyük olanları 1, küçük olanları 0 olarak 
+kodluyoruz. Bu şekilde, tahminleri ikili 
+etiketlere dönüştürmüş oluyoruz.
+- Daha sonra, modelimizin performansını
+değerlendiriyoruz. Modelimizin performansını 
+değerlendirmek için çeşitli metrikler
+kullanıyoruz. Bunlardan bazıları şunlardır:
+    - Sınıflandırma raporu: Bu rapor,
+modelin her sınıf için doğruluk, hassasiyet,
+hatırlama ve F1 skoru gibi metrikleri verir.
+Doğruluk, modelin doğru tahmin ettiği örneklerin 
+yüzdesidir. Hassasiyet, modelin bir sınıfı doğru
+tahmin etme olasılığıdır. Hatırlama, modelin bir
+sınıfı kaçırmadan tahmin etme olasılığıdır. F1 skoru, hassasiyet ve hatırlamanın harmonik ortalamasıdır. Sınıflandırma raporunu ekrana yazdırıyoruz.
+    - Karışıklık matrisi: Bu matris, modelin her sınıf için doğru ve yanlış tahminlerini gösterir. Karışıklık matrisini bir ısı haritası olarak çiziyoruz ve değerleri gösteriyoruz. X ekseni tahmin edilen sınıfları, Y ekseni ise gerçek sınıfları temsil eder. Matrisin köşegeni doğru tahminleri, diğer hücreler ise yanlış tahminleri gösterir. Karışıklık matrisini göstermek için bir grafik penceresi açıyoruz.
+    - Diğer metrikler: Modelimizin kaybını ve doğruluğunu hesaplıyoruz. Kayıp, modelin tahminleri ile gerçek etiketler arasındaki farkı ölçer. Doğruluk, modelin doğru tahmin ettiği örneklerin yüzdesini verir. Kayıp ve doğruluğu ekrana yazdırıyoruz.
+Bu kod, Python dilinde yazılmış bir kod parçasıdır. Python, popüler ve güçlü bir programlama dilidir. Bu kodu çalıştırmak için, birkaç yöntem vardır. Bunlardan bazıları şunlardır:
+- Komut satırı veya terminal kullanarak: Bu yöntem, işletim sisteminizin komut satırı veya terminalini açmanızı ve python komutunu kodunuzun adıyla birlikte yazmanızı gerektirir. Örneğin, kodunuz hello.py adlı bir dosyada ise, şöyle yazabilirsiniz:
+python hello.py
+Bu komut, Python yorumlayıcısına kodunuzu çalıştırmasını söyler. Kodunuzun .py uzantısına sahip olduğundan emin olun. 
+- Etkileşimli modda kullanarak: Bu yöntem, Python yorumlayıcısını etkileşimli modda başlatmanızı ve kodunuzu doğrudan yazmanızı gerektirir. Etkileşimli modda, kodunuzu parça parça yazabilir ve sonuçlarını anında görebilirsiniz. Etkileşimli modu başlatmak için, komut satırında veya terminalde python yazmanız yeterlidir. 
+- Bir IDE veya kod editörü kullanarak: Bu yöntem, Python ile uyumlu bir IDE (Entegre Geliştirme Ortamı) veya kod editörü kullanmanızı gerektirir. IDE veya kod editörü, kodunuzu yazmanızı, çalıştırmanızı, test etmenizi ve hata ayıklamanızı kolaylaştıran araçlar sunar. Python için popüler IDE ve kod editörleri arasında PyCharm, Visual Studio Code, Spyder, Sublime Text ve daha birçokları bulunmaktadır. 
+- Bir dosya yöneticisi kullanarak: Bu yöntem, işletim sisteminizin dosya yöneticisini kullanmanızı ve kodunuzu içeren dosyayı çift tıklamanızı gerektirir. Bu şekilde, kodunuz varsayılan Python yorumlayıcısı tarafından çalıştırılır. 
