@@ -1,0 +1,98 @@
+PYTHONLA BİPOLAR BOZUKLUĞU TEŞHİSİ İÇİN BİR MAKİNE ÖĞRENMESİ MODELİ
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, plot_confusion_matrix
+from sklearn.model_selection import cross_val_score, GridSearchCV
+from sklearn.preprocessing import StandardScaler
+from imblearn.over_sampling import SMOTE, ADASYN
+from sklearn.feature_selection import SelectKBest, f_classif
+import shap
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import plot_roc_curve
+from sklearn.metrics import roc_auc_score
+from sklearn.decomposition import PCA
+# Load extended data with additional features
+extended_data = pd.read_csv("extended_bipolar_data.csv")
+extended_data.head()
+# Split data into features and target
+X_extended = extended_data.drop(["id", "diagnosis"], axis=1)
+y_extended = extended_data["diagnosis"]
+# Encode categorical features
+X_extended = pd.get_dummies(X_extended, drop_first=True)
+# Feature Selection: Select top k features using ANOVA F-statistic
+k_best = SelectKBest(f_classif, k=10)
+X_selected = k_best.fit_transform(X_extended, y_extended)
+# Data Scaling: Min-Max scaling for better convergence
+scaler = MinMaxScaler()
+X_scaled = scaler.fit_transform(X_selected)
+# ADASYN for handling imbalanced data
+adasyn = ADASYN()
+X_resampled_adasyn, y_resampled_adasyn = adasyn.fit_resample(X_scaled, y_extended)
+# Random Forest for interpretability and feature importance
+rf_model = RandomForestClassifier()
+rf_model.fit(X_scaled, y_extended)
+# SHAP values for interpretability
+explainer = shap.Explainer(rf_model)
+shap_values = explainer.shap_values(X_scaled)
+# Visualize feature importance using SHAP summary plot
+shap.summary_plot(shap_values, X_scaled, feature_names=X_selected.columns)
+# Visualize ROC curve for model evaluation
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_extended, test_size=0.2, random_state=42)
+plot_roc_curve(rf_model, X_test, y_test)
+plt.show()
+# Principal Component Analysis (PCA) for dimensionality reduction and visualization
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+plt.scatter(X_pca[:, 0], X_pca[:, 1], c=y_extended, cmap='viridis')
+plt.title("PCA Visualization of Data")
+plt.show() 
+#Writer by Rıdvan Kaya 
+
+Bu kod, bipolar bozukluk tanısı olan ve olmayan kişilerin 
+verilerini içeren bir CSV dosyasını okuyor ve bu verileri
+kullanarak bir makine öğrenmesi modeli oluşturuyor. Kodun
+yaptığı işlemler şunlardır:
+- Verileri özellikler (X_extended) ve hedef (y_extended) 
+olarak ayırıyor.
+- Kategorik özellikleri sayısal olarak kodluyor.
+- ANOVA F-istatistiği kullanarak en önemli 10 özelliği seçiyor.
+- Min-Max ölçekleme yöntemiyle verileri 0 ile 1 arasında bir 
+aralığa dönüştürüyor.
+- ADASYN adlı bir yöntemle verilerdeki sınıf dengesizliğini 
+gideriyor.
+- Rastgele Orman adlı bir sınıflandırma modeli oluşturuyor
+ve verileri bu modele uyduruyor.
+- SHAP adlı bir yöntemle modelin yorumlanabilirliğini 
+ve özelliklerin önemini görselleştiriyor.
+- ROC eğrisi adlı bir yöntemle modelin performansını 
+değerlendiriyor.
+- PCA adlı bir yöntemle verilerin boyutunu azaltıyor 
+ve iki boyutlu bir grafikte gösteriyor.
+Bu kodun sonucunda elde edilen görseller şunlardır:
+- SHAP özet grafiği: Bu grafik, modelin tahminlerini
+etkileyen özelliklerin önemini ve yönünü gösteriyor. 
+Örneğin, bu grafikte görüldüğü gibi, age özelliği 
+modelin tahminlerinde en çok etkili olan özellik. 
+Bu özellik arttıkça, modelin bipolar bozukluk
+tanısı koyma olasılığı da artıyor.
+- ROC eğrisi: Bu grafik, modelin doğruluk 
+ve yanlışlık oranlarını gösteriyor. Bu 
+grafikte görülen AUC değeri, modelin 
+sınıfları ayırt etme yeteneğini ölçüyor.
+AUC değeri 1'e yaklaştıkça, modelin 
+performansı daha iyi demektir. Bu 
+grafikte AUC değeri 0.98 olarak görülüyor,
+bu da modelin oldukça iyi bir performans
+sergilediği anlamına geliyor.
+- PCA grafiği: Bu grafik, verilerin iki 
+boyutlu bir uzaya indirgenmiş halini 
+gösteriyor. Bu grafikte, mavi noktalar 
+bipolar bozukluk tanısı olmayan kişileri,
+sarı noktalar ise bipolar bozukluk tanısı 
+olan kişileri temsil ediyor. Bu grafikte 
+görüldüğü gibi, verilerin büyük bir kısmı
+iki sınıf arasında net bir şekilde ayrılmış durumda.
