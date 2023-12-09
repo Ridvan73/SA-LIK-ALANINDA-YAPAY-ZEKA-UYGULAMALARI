@@ -1,0 +1,124 @@
+PYTHONLA ANTİSOSYAL KİŞİLİK BOZUKLUĞU TEŞHİSİ
+```python
+# Gerekli kütüphaneleri yükleme
+import pandas as pd
+import numpy as np
+import xgboost as xgb
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.pipeline import Pipeline
+# Veri setini okuma
+df = pd.read_csv("antisocial_personality_disorder.csv")
+# Veri setini inceleme
+df.head()
+df.info()
+df.describe()
+# Bağımlı ve bağımsız değişkenleri ayırma
+X = df.drop("antisocial", axis=1)
+y = df["antisocial"]
+# Veri setini eğitim ve test kümelerine bölme
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Pipeline oluşturarak veri temizliği ve ölçeklendirme
+pipeline = Pipeline([
+    ('scaler', StandardScaler()),  # Ölçeklendirme
+    ('classifier', xgb.XGBClassifier())  # XGBoost modeli
+])
+# Hyperparameter tuning için GridSearchCV
+param_grid = {
+    'classifier__max_depth': [3, 5, 7],
+    'classifier__learning_rate': [0.1, 0.01, 0.001],
+    'classifier__n_estimators': [100, 200, 300]
+}
+grid_search = GridSearchCV(pipeline, param_grid, cv=3, scoring='accuracy')
+grid_search.fit(X_train, y_train)
+# En iyi modeli seçme
+best_model = grid_search.best_estimator_
+# Modelin performansını değerlendirme
+y_pred = best_model.predict(X_test)
+acc = accuracy_score(y_test, y_pred)
+print("Modelin doğruluk oranı: ", acc)
+print("Modelin karışıklık matrisi: ")
+print(confusion_matrix(y_test, y_pred))
+print("Modelin sınıflandırma raporu: ")
+print(classification_report(y_test, y_pred))
+#Yazan Rıdvan Kaya
+```
+Bu kod, antisosyal kişilik bozukluğu olan 
+bireyleri tahmin etmek için bir makine
+öğrenmesi modeli oluşturur. Kodun yaptığı 
+işlemler şunlardır:
+- Gerekli kütüphaneleri yükleme: Bu kod,
+veri işleme, matematiksel işlemler, 
+model oluşturma, model seçme, model 
+değerlendirme ve veri ölçeklendirme 
+için gerekli olan pandas, numpy, xgboost,
+sklearn ve pipeline kütüphanelerini yükler.
+- Veri setini okuma: Bu kod, antisosyal 
+kişilik bozukluğu veri setini bir CSV 
+dosyasından okur ve df adlı bir pandas
+veri çerçevesine atar.
+- Veri setini inceleme: Bu kod, df veri 
+çerçevesinin ilk beş satırını, sütunlarının 
+veri tiplerini ve istatistiksel özetini
+ekrana yazdırır.
+- Bağımlı ve bağımsız değişkenleri ayırma: 
+Bu kod, df veri çerçevesinden antisosyal 
+sütununu bağımlı değişken olarak y adlı
+bir değişkene, geri kalan sütunları ise 
+bağımsız değişkenler olarak X adlı bir
+değişkene atar.
+- Veri setini eğitim ve test kümelerine 
+bölme: Bu kod, X ve y değişkenlerini 
+%80 eğitim ve %20 test olacak şekilde 
+rastgele bölerek X_train, X_test,
+y_train ve y_test adlı dört değişkene 
+atar. Bu işlem, modelin eğitim ve 
+test verileri üzerindeki performansını 
+ölçmek için yapılır.
+- Pipeline oluşturarak veri temizliği 
+ve ölçeklendirme: Bu kod, bir pipeline 
+nesnesi oluşturarak veri önişleme ve 
+model oluşturma işlemlerini bir arada 
+yapar. Pipeline nesnesi, iki adımdan
+oluşur: scaler ve classifier. Scaler 
+adımı, StandardScaler sınıfını kullanarak 
+bağımsız değişkenlerin değerlerini 
+standartlaştırır. Bu işlem, veri 
+setindeki ölçek farklılıklarını 
+gidermek ve modelin daha iyi 
+öğrenmesini sağlamak için yapılır.
+Classifier adımı, xgb.XGBClassifier 
+sınıfını kullanarak XGBoost adlı bir 
+makine öğrenmesi algoritmasıyla bir
+model oluşturur. XGBoost, karar
+ağaçları temelli bir algoritmadır 
+ve yüksek performanslı ve hızlı 
+bir modeldir.
+- Hyperparameter tuning için 
+GridSearchCV: Bu kod, GridSearchCV 
+sınıfını kullanarak pipeline nesnesinin
+hiperparametrelerini en iyi değerlere ayarlar. 
+Hiperparametreler, modelin öğrenme sürecini
+etkileyen parametrelerdir. Bu kod, classifier 
+adımının max_depth, learning_rate ve n_estimators 
+adlı üç hiperparametresi için farklı değerler 
+deneyerek en iyi doğruluk oranını veren değerleri
+bulur. Bu işlem, modelin eğitim verisi üzerindeki 
+performansını artırmak ve aşırı öğrenmeyi önlemek
+için yapılır.
+- En iyi modeli seçme: Bu kod, grid_search 
+nesnesinin best_estimator_ özelliğini kullanarak
+en iyi hiperparametre değerlerine sahip modeli
+best_model adlı bir değişkene atar.
+- Modelin performansını değerlendirme: Bu kod, 
+best_model nesnesinin predict metoduyla test 
+verisi üzerinde tahminler yapar ve y_pred adlı 
+bir değişkene atar. Ardından, accuracy_score, 
+confusion_matrix ve classification_report 
+fonksiyonlarını kullanarak modelin test
+verisi üzerindeki performansını değerlendirir. 
+Bu işlem, modelin gerçek veri üzerindeki 
+başarısını ölçmek ve modelin güçlü ve
+zayıf yönlerini belirlemek için yapılır.
